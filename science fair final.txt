@@ -1,0 +1,3842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FabriScan - Smart Laundry Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Amiri:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Premium Fatemi Color Palette */
+            --primary: #B8860B;
+            --primary-dark: #8B6914;
+            --secondary: #CD853F;
+            --accent: #1E3A8A;
+            --success: #B8860B;
+            --warning: #CD853F;
+            --error: #DC2626;
+            --dark: #0F172A;
+            --dark-light: #1E293B;
+            --gray: #64748B;
+            --gray-light: #94A3B8;
+            --white: #FFFFFF;
+            --fatemi-gold: #B8860B;
+            --fatemi-gold-dark: #8B6914;
+            --fatemi-gold-light: #F7E98E;
+            --fatemi-brown: #8B4513;
+            --fatemi-brown-light: #CD853F;
+            --fatemi-blue: #1E3A8A;
+            --fatemi-blue-light: #3B82F6;
+            --fatemi-cream: #FEF7CD;
+            --glass: rgba(184, 134, 11, 0.08);
+            --glass-border: rgba(184, 134, 11, 0.3);
+            --gold-glass: rgba(184, 134, 11, 0.15);
+            --brown-glass: rgba(139, 69, 19, 0.1);
+            --blue-glass: rgba(30, 58, 138, 0.1);
+            --shadow: rgba(184, 134, 11, 0.4);
+            --text-bright: #FFFFFF;
+            --text-gold: #B8860B;
+        }
+
+        /* Light Theme Variables */
+        [data-theme="light"] {
+            --primary: #00B894;
+            --primary-dark: #00A085;
+            --secondary: #E6B800;
+            --accent: #2c5282;
+            --success: #00B894;
+            --warning: #E6B800;
+            --error: #E53E3E;
+            --dark: #FFFFFF;
+            --dark-light: #F7FAFC;
+            --gray: #4A5568;
+            --gray-light: #718096;
+            --white: #1A202C;
+            --glass: rgba(0, 184, 148, 0.08);
+            --glass-border: rgba(0, 184, 148, 0.2);
+            --teal-glass: rgba(0, 184, 148, 0.1);
+            --gold-glass: rgba(230, 184, 0, 0.1);
+            --shadow: rgba(0, 184, 148, 0.2);
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+        }
+
+        /* Dark Theme Variables */
+        [data-theme="dark"] {
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0AEC0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--fatemi-blue) 25%, var(--fatemi-brown) 50%, var(--fatemi-gold-dark) 75%, var(--dark-light) 100%);
+            min-height: 100vh;
+            color: var(--text-bright);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Fatemi Architectural Pattern Overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(184, 134, 11, 0.08) 3px, transparent 3px),
+                radial-gradient(circle at 75% 75%, rgba(139, 69, 19, 0.06) 2px, transparent 2px),
+                radial-gradient(circle at 50% 10%, rgba(30, 58, 138, 0.05) 1px, transparent 1px),
+                linear-gradient(45deg, transparent 30%, rgba(184, 134, 11, 0.03) 50%, transparent 70%),
+                repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(184, 134, 11, 0.02) 41px, rgba(184, 134, 11, 0.02) 42px),
+                repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(139, 69, 19, 0.02) 61px, rgba(139, 69, 19, 0.02) 62px);
+            background-size: 80px 80px, 120px 120px, 200px 200px, 150px 150px, 100% 100%, 100% 100%;
+            pointer-events: none;
+            z-index: 1;
+            animation: fatemi-pattern 45s linear infinite;
+        }
+
+        @keyframes fatemi-pattern {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(60px) translateY(60px); }
+        }
+
+        /* Enhanced Animated Background with Fatemi Elements */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            background: 
+                radial-gradient(circle at 15% 85%, rgba(184, 134, 11, 0.12) 0%, transparent 60%),
+                radial-gradient(circle at 85% 15%, rgba(139, 69, 19, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(30, 58, 138, 0.06) 0%, transparent 70%),
+                radial-gradient(circle at 30% 20%, rgba(184, 134, 11, 0.05) 0%, transparent 40%);
+            animation: float-bg 25s ease-in-out infinite;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(3px 3px at 25px 35px, rgba(184, 134, 11, 0.4), transparent),
+                radial-gradient(2px 2px at 45px 75px, rgba(139, 69, 19, 0.3), transparent),
+                radial-gradient(1px 1px at 95px 45px, rgba(30, 58, 138, 0.3), transparent),
+                radial-gradient(2px 2px at 135px 85px, rgba(184, 134, 11, 0.35), transparent),
+                radial-gradient(1px 1px at 65px 15px, rgba(139, 69, 19, 0.25), transparent);
+            background-repeat: repeat;
+            background-size: 180px 180px;
+            animation: particle-float 30s linear infinite;
+        }
+
+        @keyframes float-bg {
+            0%, 100% { transform: translateX(0) translateY(0) scale(1); }
+            33% { transform: translateX(-20px) translateY(-10px) scale(1.05); }
+            66% { transform: translateX(20px) translateY(10px) scale(0.95); }
+        }
+
+        @keyframes particle-float {
+            0% { transform: translateY(0) translateX(0); }
+            100% { transform: translateY(-100px) translateX(50px); }
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--fatemi-blue) 30%, var(--fatemi-brown) 60%, var(--fatemi-gold) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 1s ease;
+        }
+
+        .logo-loading {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 30px;
+            border-radius: 20px;
+            animation: pulse-logo 2s ease-in-out infinite;
+            background: var(--white);
+            padding: 10px;
+        }
+
+        @keyframes pulse-logo {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(99, 102, 241, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(139, 92, 246, 0.7); }
+        }
+
+        .loading-text {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header */
+        .main-header {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(0, 212, 170, 0.1) 1px, transparent 1px),
+                radial-gradient(circle at 80% 80%, rgba(255, 215, 0, 0.1) 1px, transparent 1px),
+                radial-gradient(circle at 40% 60%, rgba(0, 212, 170, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px, 80px 80px, 60px 60px;
+            animation: particles-float 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes particles-float {
+            0% { transform: translateY(0) translateX(0); }
+            100% { transform: translateY(-20px) translateX(10px); }
+        }
+
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .logo-main {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            border-radius: 16px;
+            background: var(--white);
+            padding: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .logo-main:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.4);
+        }
+
+        .main-title {
+            font-size: 3.5em;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, var(--fatemi-gold), var(--fatemi-brown-light), var(--fatemi-blue-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(184, 134, 11, 0.3);
+        }
+
+        .main-subtitle {
+            font-size: 1.2em;
+            color: var(--gray-light);
+            font-weight: 400;
+        }
+
+        .hadith-quote {
+            margin-top: 30px;
+            padding: 35px;
+            background: var(--gold-glass);
+            border: 2px solid rgba(184, 134, 11, 0.4);
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(184, 134, 11, 0.2);
+        }
+
+        .hadith-quote::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--fatemi-gold), var(--fatemi-brown-light), var(--fatemi-blue), var(--fatemi-gold));
+        }
+
+        .hadith-arabic {
+            font-size: 2.2em;
+            font-weight: 800;
+            color: var(--fatemi-gold);
+            margin-bottom: 15px;
+            font-family: 'Amiri', 'Times New Roman', serif;
+            line-height: 1.4;
+            direction: rtl;
+            text-shadow: 0 2px 10px rgba(184, 134, 11, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .hadith-translation {
+            font-size: 0.95em;
+            color: var(--gray-light);
+            font-style: italic;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Navigation */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, var(--fatemi-gold) 0%, var(--fatemi-brown-light) 50%, var(--fatemi-blue) 100%);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 25px rgba(184, 134, 11, 0.4);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(184, 134, 11, 0.3);
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(184, 134, 11, 0.7);
+            filter: brightness(1.2);
+            animation: fatemi-glow-pulse 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes fatemi-glow-pulse {
+            0% { box-shadow: 0 20px 40px rgba(184, 134, 11, 0.7); }
+            50% { box-shadow: 0 25px 50px rgba(139, 69, 19, 0.6); }
+            100% { box-shadow: 0 30px 60px rgba(30, 58, 138, 0.5); }
+        }
+
+        .nav-btn:active {
+            transform: translateY(-1px) scale(0.98);
+            transition: all 0.1s ease;
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--success) 100%);
+            box-shadow: 0 12px 30px rgba(6, 182, 212, 0.4);
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            margin: 20px 0;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .page.active {
+            display: block;
+            animation: slideIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px) translateY(30px) scale(0.95) rotateY(-10deg);
+                filter: blur(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) translateY(0) scale(1) rotateY(0deg);
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0) translateY(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(50px) translateY(-20px) scale(0.95);
+                filter: blur(3px);
+            }
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: var(--gray-light);
+            font-size: 1.1em;
+        }
+
+        /* Forms */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--white);
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--white);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--gray-light);
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, var(--accent) 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--error) 0%, var(--warning) 100%);
+        }
+
+        /* Scan Area */
+        .scan-area {
+            background: linear-gradient(135deg, var(--orange-glass) 0%, var(--blue-glass) 100%);
+            border: 2px dashed var(--primary);
+            border-radius: 20px;
+            padding: 60px;
+            text-align: center;
+            margin: 40px 0;
+            position: relative;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .scan-area::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent), var(--primary));
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .scan-area:hover::before {
+            opacity: 0.3;
+        }
+
+        .scan-area::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            pointer-events: none;
+        }
+
+        .rfid-display {
+            background: var(--dark-light);
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: center;
+            border: 1px solid var(--glass-border);
+        }
+
+        .scan-status {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 20px 0;
+            color: var(--gray-light);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .stat-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(99, 102, 241, 0.3);
+        }
+
+        .stat-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--fatemi-gold), var(--text-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            filter: brightness(1.3);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-bright);
+            font-weight: 500;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Enhanced User Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.2);
+        }
+
+        .user-profile {
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .user-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--white);
+        }
+
+        .user-email {
+            color: var(--gray-light);
+            margin-bottom: 20px;
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .user-stat {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .user-stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .user-stat-label {
+            font-size: 12px;
+            color: var(--gray-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Enhanced Items List */
+        .items-container {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .items-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .items-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .items-count {
+            background: var(--primary);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .item-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .item-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .item-card:hover {
+            transform: translateX(8px);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--white);
+            margin-bottom: 6px;
+        }
+
+        .item-details {
+            color: var(--gray-light);
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .item-price {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        /* Enhanced Receipts */
+        .receipt-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .receipt-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        }
+
+        .receipt-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.2);
+        }
+
+        .receipt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .receipt-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--gray-light);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .receipt-date {
+            font-size: 13px;
+            color: var(--gray-light);
+        }
+
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .receipt-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--success);
+        }
+
+        .receipt-item-name {
+            color: var(--white);
+            font-weight: 500;
+        }
+
+        .receipt-item-price {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Live Tracking */
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Chart Containers */
+        .chart-container {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            border: 1px solid var(--glass-border);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--white);
+            text-align: center;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-weight: 500;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            min-width: 300px;
+            animation: slideInRight 0.5s ease;
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+        }
+
+        /* Demo Badge */
+        .demo-badge {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            z-index: 1000;
+            font-size: 12px;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 12px 35px var(--shadow);
+        }
+
+        .theme-toggle-icon {
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        /* Credits Panel */
+        .credits-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 380px;
+            height: 100vh;
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            border-left: 1px solid var(--glass-border);
+            z-index: 2000;
+            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            overflow-y: auto;
+            box-shadow: -10px 0 50px var(--shadow);
+        }
+
+        .credits-panel.active {
+            right: 0;
+        }
+
+        .credits-header {
+            padding: 30px 25px 20px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .credits-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .credits-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .credits-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .credits-content {
+            padding: 25px;
+        }
+
+        .credit-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .credit-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .credit-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .credit-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .credit-role {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .credits-footer {
+            padding: 25px;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+            background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(59, 130, 246, 0.1));
+        }
+
+        .company-motto {
+            font-size: 14px;
+            font-style: italic;
+            color: var(--text-secondary);
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        /* Credits Toggle Button */
+        .credits-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1500;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 140, 66, 0.4);
+        }
+
+        .credits-toggle:hover {
+            transform: scale(1.1) rotate(-10deg);
+            box-shadow: 0 12px 35px rgba(255, 140, 66, 0.6);
+        }
+
+        .credits-toggle-icon {
+            font-size: 24px;
+            color: white;
+        }
+
+        /* VIP Customer Tiers */
+        .vip-platinum {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 66, 0.2)) !important;
+            border: 2px solid #FFD700 !important;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3) !important;
+        }
+
+        .vip-gold {
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.15), rgba(255, 140, 66, 0.15)) !important;
+            border: 2px solid #FFA500 !important;
+        }
+
+        .vip-silver {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.15), rgba(59, 130, 246, 0.15)) !important;
+            border: 2px solid #C0C0C0 !important;
+        }
+
+        .vip-bronze {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.15), rgba(139, 92, 246, 0.15)) !important;
+            border: 2px solid #CD7F32 !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-title {
+                font-size: 2.5em;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .page {
+                padding: 25px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Mobile adjustments for activity feed and VIP customers */
+            .admin-dashboard div[style*="grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+
+            .credits-panel {
+                width: 100vw;
+                right: -100vw;
+            }
+
+            .credits-toggle {
+                bottom: 80px;
+            }
+
+            .theme-toggle {
+                top: 80px;
+            }
+        }
+
+        /* Scanning Animation */
+        .scanning-active {
+            border-color: var(--success);
+            animation: pulse-scan 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-scan {
+            0%, 100% { 
+                box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+                border-color: var(--success);
+            }
+            50% { 
+                box-shadow: 0 0 60px rgba(99, 102, 241, 0.5);
+                border-color: var(--primary);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="logo-loading">
+            <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- RFID Waves -->
+                <g stroke="#FF8C42" stroke-width="2" fill="none" opacity="0.8">
+                    <circle cx="50" cy="35" r="15">
+                        <animate attributeName="r" values="15;25;15" dur="2s" repeatCount="indefinite"/>
+                        <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="50" cy="35" r="20">
+                        <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+                        <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+                    </circle>
+                </g>
+                
+                <!-- Central RFID Chip -->
+                <rect x="42" y="27" width="16" height="16" rx="2" fill="#3B82F6" stroke="#1E40AF" stroke-width="1"/>
+                <circle cx="50" cy="35" r="3" fill="#FF8C42"/>
+                
+                <!-- Clothing Icon -->
+                <g transform="translate(35, 55)">
+                    <path d="M5 10 L5 25 L25 25 L25 10 L20 5 L15 8 L10 5 Z" fill="#60A5FA" stroke="#1E40AF" stroke-width="1"/>
+                    <circle cx="10" cy="15" r="1.5" fill="#FF8C42"/>
+                    <circle cx="20" cy="15" r="1.5" fill="#FF8C42"/>
+                </g>
+                
+                <!-- Scanning Beam -->
+                <line x1="50" y1="10" x2="50" y2="90" stroke="#FF8C42" stroke-width="2" opacity="0.7">
+                    <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.5s" repeatCount="indefinite"/>
+                </line>
+            </svg>
+        </div>
+        <div class="loading-text">Initializing FabriScan System...</div>
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Demo Badge -->
+    <div class="demo-badge">🚀 DEMO MODE</div>
+
+    <!-- Dark Mode Toggle -->
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <div class="theme-toggle-icon">🌙</div>
+    </div>
+
+    <!-- CEO Credits Panel -->
+    <div class="credits-panel" id="creditsPanel">
+        <div class="credits-header">
+            <h3>👑 Executive Team</h3>
+            <button class="credits-close" onclick="toggleCredits()">×</button>
+        </div>
+        <div class="credits-content">
+            <div class="credit-section">
+                <div class="credit-title">👑 Chief Executive Officer</div>
+                <div class="credit-name">Ismail bhai Tarmal</div>
+                <div class="credit-role">Visionary Leader & Strategic Mastermind - Pioneering the Future of Smart Laundry Technology</div>
+            </div>
+            
+            <div class="credit-section">
+                <div class="credit-title">⚡ Chief Technology Officer</div>
+                <div class="credit-name">Mustansir Zainee</div>
+                <div class="credit-role">Revolutionary Tech Architect & Innovation Catalyst - Transforming Ideas into Digital Reality</div>
+                <div class="credit-name">Vajihuddin Hanif</div>
+                <div class="credit-role">Advanced Systems Engineer & Technical Visionary - Building Tomorrow's Solutions Today</div>
+            </div>
+            
+            <div class="credit-section">
+                <div class="credit-title">🎨 Elite Creative Design Team</div>
+                <div class="credit-name">Idris Electric</div>
+                <div class="credit-role">Master Visual Designer & Brand Architect - Crafting Extraordinary User Experiences</div>
+                <div class="credit-name">Huzefa Hamid</div>
+                <div class="credit-role">Premium UI/UX Design Specialist & Interface Innovator - Designing the Future of Interaction</div>
+            </div>
+            
+            <div class="credit-section">
+                <div class="credit-title">🌟 Tazeen Excellence Division</div>
+                <div class="credit-name">Adam Dossaji</div>
+                <div class="credit-role">Executive Team Leader & Strategic Operations Commander - Orchestrating Excellence at Every Level</div>
+            </div>
+
+            <div class="credit-section">
+                <div class="credit-title">📚 Distinguished Academic Mentors</div>
+                <div class="credit-name">Janab Mulla Murtaza bhai Patanwala</div>
+                <div class="credit-role">Esteemed Educational Advisor & Knowledge Architect - Inspiring Academic Excellence & Innovation</div>
+                <div class="credit-name">Janab Shk Huzefa bhai Jivanjee</div>
+                <div class="credit-role">Respected Learning Facilitator & Wisdom Guide - Nurturing Minds for Technological Advancement</div>
+            </div>
+        </div>
+        <div class="credits-footer">
+            <div class="company-motto">
+                "Excellence in Innovation, Powered by Dedication"
+            </div>
+        </div>
+    </div>
+
+    <!-- Credits Toggle Button -->
+    <div class="credits-toggle" onclick="toggleCredits()">
+        <div class="credits-toggle-icon">👑</div>
+    </div>
+
+    <div class="container">
+        <!-- Main Header -->
+        <div class="main-header">
+            <div class="logo-main">
+                <img src="https://i.postimg.cc/vZHN2tJD/logo.png" alt="FabriScan Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 16px; filter: hue-rotate(180deg) saturate(1.5) brightness(1.2) drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));">
+            </div>
+            <h1 class="main-title">FabriScan</h1>
+            <p class="main-subtitle">Smart RFID Laundry Management System</p>
+            <div class="hadith-quote">
+                <p class="hadith-arabic">يَسِّرُوا وَلَا تُعَسِّرُوا</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-grid">
+            <button class="nav-btn active" onclick="showPage('home')" data-page="home">
+                📡 RFID Scanner
+            </button>
+            <button class="nav-btn" onclick="showPage('register-user')" data-page="register-user">
+                👤 Register User
+            </button>
+            <button class="nav-btn" onclick="showPage('register-clothes')" data-page="register-clothes">
+                👕 Register Items
+            </button>
+            <button class="nav-btn" onclick="showPage('login')" data-page="login">
+                🔐 User Login
+            </button>
+            <button class="nav-btn" onclick="showPage('admin-login')" data-page="admin-login">
+                ⚙️ Admin Panel
+            </button>
+            <button class="nav-btn" id="logout-btn" onclick="logout()" style="display: none;">
+                🚪 Logout
+            </button>
+        </div>
+
+        <!-- Home/Scan Page -->
+        <div id="home" class="page active">
+            <div class="page-header">
+                <h1 class="page-title">RFID Scanning Station</h1>
+                <p class="page-subtitle">Scan clothing items for laundry processing</p>
+                <div class="live-indicator">
+                    <div class="live-dot"></div>
+                    LIVE TRACKING ACTIVE
+                </div>
+            </div>
+            
+            <div class="scan-area">
+                <h2>📱 RFID Scanner</h2>
+                <div class="rfid-display" id="rfid-display">Ready to scan - Place RFID tag near reader</div>
+                <div class="scan-status" id="scan-status">Position RFID tag in scanning area</div>
+                
+                <!-- Hardware Setup Instructions -->
+                <div style="background: rgba(255, 140, 66, 0.1); border: 1px solid rgba(255, 140, 66, 0.3); border-radius: 12px; padding: 20px; margin: 20px 0; font-size: 14px;">
+                    <h4 style="color: var(--primary); margin-bottom: 15px;">🔧 NodeMCU Hardware Setup:</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <strong>📡 RFID Connections:</strong><br>
+                            • SDA → D2 (GPIO4)<br>
+                            • SCK → D5 (GPIO14)<br>
+                            • MOSI → D7 (GPIO13)<br>
+                            • MISO → D6 (GPIO12)<br>
+                            • RST → D1 (GPIO5)<br>
+                            • 3.3V → 3V3<br>
+                            • GND → GND
+                        </div>
+                        <div>
+                            <strong>🌐 Network Setup:</strong><br>
+                            • Upload provided NodeMCU code<br>
+                            • Connect to same WiFi network<br>
+                            • System auto-detects hardware<br>
+                            • WebSocket on port 81<br>
+                            • Status shows in admin panel
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn btn-success" onclick="startScanning()">📡 Start Scanning</button>
+                    <button class="btn btn-danger" onclick="stopScanning()">⏹️ Stop Scanning</button>
+                    <button class="btn" onclick="tryWebSocketConnection()" style="background: linear-gradient(135deg, var(--accent), var(--primary));">🔄 Reconnect Hardware</button>
+                </div>
+            </div>
+
+            <div class="items-container">
+                <div class="items-header">
+                    <h3 class="items-title">📋 Recent Scans</h3>
+                    <div class="items-count" id="recent-count">0</div>
+                </div>
+                <div id="recent-scans"></div>
+            </div>
+        </div>
+
+        <!-- User Registration Page -->
+        <div id="register-user" class="page">
+            <div class="page-header">
+                <h1 class="page-title">User Registration</h1>
+                <p class="page-subtitle">Create a new user account in the system</p>
+            </div>
+            
+            <form onsubmit="registerUser(event)" class="form-grid">
+                <div>
+                    <div class="form-group">
+                        <label class="form-label">👤 Full Name</label>
+                        <input type="text" class="form-control" id="user-name" required placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">📧 Email Address</label>
+                        <input type="email" class="form-control" id="user-email" required placeholder="Enter your email address">
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label class="form-label">📱 Phone Number</label>
+                        <input type="tel" class="form-control" id="user-phone" required placeholder="Enter your phone number">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">🔐 Password</label>
+                        <input type="password" class="form-control" id="user-password" required placeholder="Create a password">
+                    </div>
+                </div>
+                <div style="grid-column: 1 / -1; text-align: center;">
+                    <button type="submit" class="btn btn-success">✅ Register User</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Clothes Registration Page -->
+        <div id="register-clothes" class="page">
+            <div class="page-header">
+                <h1 class="page-title">Register Clothing Items</h1>
+                <p class="page-subtitle">Add new clothing items to the system</p>
+            </div>
+            
+            <form onsubmit="registerClothes(event)" class="form-grid">
+                <div>
+                    <div class="form-group">
+                        <label class="form-label">👤 Item Owner</label>
+                        <input type="text" class="form-control" id="clothes-owner" required placeholder="Enter owner name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">👕 Clothing Type</label>
+                        <select class="form-control" id="cloth-type" required>
+                            <option value="">Select Clothing Type</option>
+                            <option value="Kurta">🕌 Kurta</option>
+                            <option value="Saya">👘 Saya</option>
+                            <option value="Shirt">👔 Shirt</option>
+                            <option value="T-shirt">👕 T-shirt</option>
+                            <option value="Pants">👖 Pants</option>
+                            <option value="Jacket">🧥 Jacket</option>
+                            <option value="Socks">🧦 Socks</option>
+                            <option value="Undergarment">🩲 Undergarment</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label class="form-label">🏷️ RFID Tag</label>
+                        <div class="rfid-display" id="clothes-rfid">Waiting for RFID scan...</div>
+                        <button type="button" class="btn" onclick="scanForClothes()" style="margin-top: 15px;">📡 Scan RFID Tag</button>
+                        <div style="background: rgba(255, 140, 66, 0.1); border: 1px solid rgba(255, 140, 66, 0.3); border-radius: 8px; padding: 15px; margin-top: 15px; font-size: 13px;">
+                            <strong>💡 Admin Pricing:</strong> Item prices are automatically set by admin based on clothing type. Customers register items, admins control pricing.
+                        </div>
+                    </div>
+                </div>
+                <div style="grid-column: 1 / -1; text-align: center;">
+                    <button type="submit" class="btn btn-success">✅ Register Item</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Login Page -->
+        <div id="login" class="page">
+            <div class="page-header">
+                <h1 class="page-title">User Login</h1>
+                <p class="page-subtitle">Access your personal laundry dashboard</p>
+            </div>
+            
+            <div class="dashboard-card" style="margin-bottom: 30px;">
+                <h3 style="text-align: center; margin-bottom: 20px; color: var(--primary);">🚀 Demo Test Accounts</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <button class="btn" onclick="quickLogin('huzaifa@fabriscan.com', 'demo123')">👤 Huzaifa bhai</button>
+                    <button class="btn" onclick="quickLogin('khuzaima@fabriscan.com', 'demo123')">👤 Khuzaima bhai</button>
+                    <button class="btn" onclick="quickLogin('vajihuddin@fabriscan.com', 'demo123')">👤 Vajihuddin bhai</button>
+                    <button class="btn" onclick="quickLogin('mustafa@fabriscan.com', 'demo123')">👤 Mustafa bhai</button>
+                    <button class="btn" onclick="quickLogin('adam@fabriscan.com', 'demo123')">👤 Adam bhai</button>
+                </div>
+                <p style="text-align: center; color: var(--gray-light); font-size: 14px;">Click any button above for instant access with personal receipts!</p>
+            </div>
+
+            <form onsubmit="userLogin(event)" style="max-width: 500px; margin: 0 auto;">
+                <div class="form-group">
+                    <label class="form-label">📧 Email Address</label>
+                    <input type="email" class="form-control" id="login-email" required placeholder="Enter your email address">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">🔐 Password</label>
+                    <input type="password" class="form-control" id="login-password" required placeholder="Enter your password">
+                </div>
+                <div style="text-align: center;">
+                    <button type="submit" class="btn btn-success">🔑 Login</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Admin Login Page -->
+        <div id="admin-login" class="page">
+            <div class="page-header">
+                <h1 class="page-title">Admin Panel</h1>
+                <p class="page-subtitle">System administration and analytics dashboard</p>
+            </div>
+            
+            <div class="dashboard-card" style="margin-bottom: 30px;">
+                <h3 style="text-align: center; margin-bottom: 20px; color: var(--primary);">⚡ Quick Admin Access</h3>
+                <div style="text-align: center;">
+                    <button class="btn btn-success" onclick="quickAdminLogin()" style="font-size: 18px; padding: 20px 40px;">🔑 Access Admin Panel</button>
+                </div>
+                <p style="text-align: center; color: var(--gray-light); font-size: 14px; margin-top: 15px;">One-click admin access for demo!</p>
+            </div>
+
+            <form onsubmit="adminLogin(event)" style="max-width: 500px; margin: 0 auto;">
+                <div class="form-group">
+                    <label class="form-label">👨‍💼 Admin Username</label>
+                    <input type="text" class="form-control" id="admin-username" required placeholder="Enter admin username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">🔑 Admin Password</label>
+                    <input type="password" class="form-control" id="admin-password" required placeholder="Enter admin password">
+                </div>
+                <div style="text-align: center;">
+                    <button type="submit" class="btn btn-success">🔑 Login as Admin</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Enhanced Owner Dashboard -->
+        <div id="owner-dashboard" class="page">
+            <div class="page-header">
+                <h1 class="page-title">Personal Dashboard</h1>
+                <p class="page-subtitle">Your clothing items and laundry history</p>
+                <div class="live-indicator">
+                    <div class="live-dot"></div>
+                    REAL-TIME UPDATES
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card user-profile" id="user-profile">
+                    <!-- User profile will be loaded here -->
+                </div>
+                <div class="dashboard-card">
+                    <h3 style="margin-bottom: 20px; color: var(--white);">📊 Quick Stats</h3>
+                    <div class="user-stats" id="user-quick-stats">
+                        <!-- Quick stats will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="items-container">
+                <div class="items-header">
+                    <h3 class="items-title">👕 Your Registered Items</h3>
+                    <div class="items-count" id="user-items-count">0</div>
+                </div>
+                <div id="owner-clothes"></div>
+            </div>
+            
+            <div class="items-container">
+                <div class="items-header">
+                    <h3 class="items-title">🧾 Laundry History & Receipts</h3>
+                    <div class="items-count" id="user-receipts-count">0</div>
+                </div>
+                <div id="owner-receipts"></div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="admin-dashboard" class="page">
+            <div class="page-header">
+                <h1 class="page-title">CEO Executive Dashboard</h1>
+                <p class="page-subtitle">Complete business intelligence and operational overview</p>
+                <div class="live-indicator">
+                    <div class="live-dot"></div>
+                    REAL-TIME BUSINESS INTELLIGENCE
+                </div>
+            </div>
+            
+            <!-- Key Performance Indicators -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-clothes">0</div>
+                    <div class="stat-label">👕 Total Items Registered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-revenue">KSH 0</div>
+                    <div class="stat-label">💰 Total Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="daily-scans">0</div>
+                    <div class="stat-label">📊 Today's Transactions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-users">0</div>
+                    <div class="stat-label">👥 Active Customers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avg-order-value">KSH 0</div>
+                    <div class="stat-label">📈 Avg Order Value</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="monthly-growth">0%</div>
+                    <div class="stat-label">📊 Monthly Growth</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="customer-retention">0%</div>
+                    <div class="stat-label">🔄 Customer Retention</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="system-uptime">99.9%</div>
+                    <div class="stat-label">⚡ System Uptime</div>
+                </div>
+            </div>
+
+            <!-- Revenue & Performance Charts -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 40px 0;">
+                <div class="chart-container">
+                    <h3 class="chart-title">💹 Revenue Trends (30 Days)</h3>
+                    <canvas id="revenueChart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3 class="chart-title">📊 Daily Transaction Volume</h3>
+                    <canvas id="transactionChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Business Intelligence Charts -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 40px 0;">
+                <div class="chart-container">
+                    <h3 class="chart-title">👕 Item Distribution by Type</h3>
+                    <canvas id="clothesChart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3 class="chart-title">💰 Revenue by Item Category</h3>
+                    <canvas id="categoryRevenueChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Customer Analytics -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 40px 0;">
+                <div class="chart-container">
+                    <h3 class="chart-title">👥 Customer Registration Growth</h3>
+                    <canvas id="customerGrowthChart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3 class="chart-title">🕐 Peak Usage Hours</h3>
+                    <canvas id="hourlyUsageChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Operational Metrics -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 40px 0;">
+                <div class="chart-container">
+                    <h3 class="chart-title">📈 Monthly Performance Comparison</h3>
+                    <canvas id="monthlyComparisonChart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3 class="chart-title">🎯 Top Performing Customers</h3>
+                    <canvas id="topCustomersChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Real-time Activity & VIP Customers Side by Side -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 40px 0;">
+                <div class="items-container">
+                    <div class="items-header">
+                        <h3 class="items-title">🔴 Live Activity Feed</h3>
+                        <div class="items-count" id="live-activity-count">0</div>
+                    </div>
+                    <div id="live-activity-feed" style="max-height: 500px; overflow-y: auto;"></div>
+                </div>
+
+                <div class="items-container">
+                    <div class="items-header">
+                        <h3 class="items-title">🏆 VIP Customers (Top Spenders)</h3>
+                        <div class="items-count" id="vip-customers-count">0</div>
+                    </div>
+                    <div id="vip-customers-table" style="max-height: 500px; overflow-y: auto;"></div>
+                </div>
+            </div>
+
+            <!-- Cloud Sync & Demo Management Panel -->
+            <div class="items-container">
+                <div class="items-header">
+                    <h3 class="items-title">☁️ Cloud Sync & Demo Management</h3>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <button class="btn" onclick="toggleCloudSync()" id="cloud-sync-btn" style="background: linear-gradient(135deg, var(--success), var(--accent)); font-size: 14px; padding: 10px 20px;">☁️ Enable Cloud Sync</button>
+                        <button class="btn" onclick="syncToCloud()" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); font-size: 14px; padding: 10px 20px;">📤 Sync to Cloud</button>
+                        <button class="btn" onclick="loadFromCloud()" style="background: linear-gradient(135deg, var(--secondary), var(--accent)); font-size: 14px; padding: 10px 20px;">📥 Load from Cloud</button>
+                        <button class="btn btn-danger" onclick="clearRecentItems()" style="font-size: 14px; padding: 10px 20px;">🗑️ Clear Recent Items</button>
+                        <button class="btn" onclick="resetDemoData()" style="background: linear-gradient(135deg, var(--warning), var(--accent)); font-size: 14px; padding: 10px 20px;">🔄 Reset Demo Data</button>
+                    </div>
+                </div>
+                <div style="background: rgba(255, 140, 66, 0.1); border: 1px solid rgba(255, 140, 66, 0.3); border-radius: 12px; padding: 20px; margin: 20px 0;">
+                    <h4 style="color: var(--primary); margin-bottom: 15px;">🎪 For Judges & Audience Demonstration:</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 14px;">
+                        <div>
+                            <strong>🔄 Repeat Demo Process:</strong><br>
+                            • Register same RFID multiple times<br>
+                            • Remove items to clear system<br>
+                            • Show real-time updates<br>
+                            • Demonstrate live scanning
+                        </div>
+                        <div>
+                            <strong>🎯 Demo Features:</strong><br>
+                            • Live RFID scanning with NodeMCU<br>
+                            • Real-time dashboard updates<br>
+                            • Instant receipt generation<br>
+                            • Professional business analytics
+                        </div>
+                    </div>
+                </div>
+                <div id="recent-registered-items" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- Live System Health Monitoring -->
+            <div class="items-container">
+                <div class="items-header">
+                    <h3 class="items-title">⚡ Live System Health & Performance</h3>
+                    <div class="live-indicator" id="system-status-indicator">
+                        <div class="live-dot"></div>
+                        <span id="system-status-text">CHECKING SYSTEMS...</span>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;" id="system-health-grid">
+                    <div class="stat-card" id="rfid-status">
+                        <div class="stat-number" id="rfid-status-icon">🔄</div>
+                        <div class="stat-label">RFID Scanner Status</div>
+                        <div style="font-size: 12px; margin-top: 5px; color: var(--gray-light);" id="rfid-details">Checking connection...</div>
+                    </div>
+                    <div class="stat-card" id="websocket-status">
+                        <div class="stat-number" id="websocket-status-icon">🔄</div>
+                        <div class="stat-label">WebSocket Connection</div>
+                        <div style="font-size: 12px; margin-top: 5px; color: var(--gray-light);" id="websocket-details">Establishing connection...</div>
+                    </div>
+                    <div class="stat-card" id="database-status">
+                        <div class="stat-number" id="database-status-icon">✅</div>
+                        <div class="stat-label">Local Storage</div>
+                        <div style="font-size: 12px; margin-top: 5px; color: var(--gray-light);" id="database-details">Active & Synced</div>
+                    </div>
+                    <div class="stat-card" id="network-status">
+                        <div class="stat-number" id="network-status-icon">🔄</div>
+                        <div class="stat-label">Network Connection</div>
+                        <div style="font-size: 12px; margin-top: 5px; color: var(--gray-light);" id="network-details">Testing connectivity...</div>
+                    </div>
+                    <div class="stat-card" id="performance-status">
+                        <div class="stat-number" id="performance-status-icon">📊</div>
+                        <div class="stat-label">System Performance</div>
+                        <div style="font-size: 12px; margin-top: 5px; color: var(--gray-light);" id="performance-details">Monitoring...</div>
+                    </div>
+                    <div class="stat-card" id="security-status">
+                        <div class="stat-number" id="security-status-icon">🔒</div>
+                        <div class="stat-label">Security Status</div>
+                        <div style="font-size: 12px; margin-top: 5px; color: var(--gray-light);" id="security-details">All protocols active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let isAdmin = false;
+        let isScanning = false;
+        let isRegistrationScanning = false;
+        let users = JSON.parse(localStorage.getItem('laundryUsers') || '[]');
+        let clothes = JSON.parse(localStorage.getItem('laundryClothes') || '[]');
+        let scans = JSON.parse(localStorage.getItem('laundryScans') || '[]');
+
+        // Google Sheets Integration
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+        let isCloudSyncEnabled = false;
+
+        // Save to Google Sheets
+        async function saveToGoogleSheets(data, sheetName) {
+            if (!isCloudSyncEnabled) return null;
+            
+            try {
+                const response = await fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'save',
+                        sheet: sheetName,
+                        data: data
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Saved to Google Sheets:', result);
+                return result;
+            } catch (error) {
+                console.error('Google Sheets error:', error);
+                showAlert('Cloud sync failed - data saved locally', 'error');
+                return null;
+            }
+        }
+
+        // Load from Google Sheets
+        async function loadFromGoogleSheets(sheetName) {
+            if (!isCloudSyncEnabled) return [];
+            
+            try {
+                const response = await fetch(`${GOOGLE_SHEETS_URL}?action=load&sheet=${sheetName}`);
+                const data = await response.json();
+                console.log('Loaded from Google Sheets:', data);
+                return data;
+            } catch (error) {
+                console.error('Load error:', error);
+                return [];
+            }
+        }
+
+        // Sync all data to cloud
+        async function syncToCloud() {
+            if (!isCloudSyncEnabled) {
+                showAlert('Cloud sync not configured', 'error');
+                return;
+            }
+            
+            showAlert('Syncing to cloud...', 'success');
+            
+            try {
+                await Promise.all([
+                    saveToGoogleSheets(users, 'users'),
+                    saveToGoogleSheets(clothes, 'clothes'),
+                    saveToGoogleSheets(scans, 'scans')
+                ]);
+                showAlert('All data synced to cloud successfully!', 'success');
+            } catch (error) {
+                showAlert('Cloud sync failed - check connection', 'error');
+            }
+        }
+
+        // Load all data from cloud
+        async function loadFromCloud() {
+            if (!isCloudSyncEnabled) {
+                showAlert('Cloud sync not configured', 'error');
+                return;
+            }
+            
+            showAlert('Loading from cloud...', 'success');
+            
+            try {
+                const [cloudUsers, cloudClothes, cloudScans] = await Promise.all([
+                    loadFromGoogleSheets('users'),
+                    loadFromGoogleSheets('clothes'),
+                    loadFromGoogleSheets('scans')
+                ]);
+                
+                if (cloudUsers.length > 0) {
+                    users = cloudUsers;
+                    localStorage.setItem('laundryUsers', JSON.stringify(users));
+                }
+                
+                if (cloudClothes.length > 0) {
+                    clothes = cloudClothes;
+                    localStorage.setItem('laundryClothes', JSON.stringify(clothes));
+                }
+                
+                if (cloudScans.length > 0) {
+                    scans = cloudScans;
+                    localStorage.setItem('laundryScans', JSON.stringify(scans));
+                }
+                
+                updateStats();
+                showAlert('Data loaded from cloud successfully!', 'success');
+            } catch (error) {
+                showAlert('Failed to load from cloud', 'error');
+            }
+        }
+
+        // Enhanced sound effects with better compatibility
+        let audioContext = null;
+        
+        function initAudioContext() {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    // Resume context if suspended (required by some browsers)
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                } catch (e) {
+                    console.log('Audio not supported');
+                    return null;
+                }
+            }
+            return audioContext;
+        }
+
+        function playSound(frequency = 800, duration = 200, type = 'sine', volume = 0.3) {
+            const ctx = initAudioContext();
+            if (!ctx) return;
+            
+            try {
+                // Resume context if needed
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+                
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0, ctx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
+                
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + duration / 1000);
+            } catch (e) {
+                console.log('Sound playback failed:', e);
+            }
+        }
+
+        function playSuccessSound() {
+            playSound(800, 120, 'sine', 0.25);
+            setTimeout(() => playSound(1000, 120, 'sine', 0.25), 120);
+            setTimeout(() => playSound(1200, 180, 'sine', 0.3), 240);
+        }
+
+        function playErrorSound() {
+            playSound(300, 500, 'sawtooth', 0.2);
+        }
+
+        function playStartSound() {
+            playSound(600, 250, 'sine', 0.3);
+            setTimeout(() => playSound(800, 250, 'sine', 0.3), 120);
+        }
+
+        function playStopSound() {
+            playSound(500, 200, 'sine', 0.25);
+            setTimeout(() => playSound(300, 200, 'sine', 0.25), 120);
+        }
+
+        function playScanSound() {
+            playSound(1000, 150, 'sine', 0.3);
+        }
+
+        // Initialize with comprehensive dummy data
+        function initializeDummyData() {
+            if (users.length === 0) {
+                users = [
+                    {
+                        id: 1,
+                        name: 'Huzaifa bhai Shaikh Juzer bhai Hamid',
+                        email: 'huzaifa@fabriscan.com',
+                        phone: '+254701234567',
+                        password: 'demo123',
+                        registeredAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 2,
+                        name: 'Khuzaima bhai Huzaifa bhai Dahodwala',
+                        email: 'khuzaima@fabriscan.com',
+                        phone: '+254702345678',
+                        password: 'demo123',
+                        registeredAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 3,
+                        name: 'Vajihuddin bhai Mulla Hakimuddin bhai Hanif',
+                        email: 'vajihuddin@fabriscan.com',
+                        phone: '+254703456789',
+                        password: 'demo123',
+                        registeredAt: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 4,
+                        name: 'Mustafa bhai Shaikh Murtaza bhai Shakir',
+                        email: 'mustafa@fabriscan.com',
+                        phone: '+254704567890',
+                        password: 'demo123',
+                        registeredAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 5,
+                        name: 'Adam bhai Murtaza bhai Dossajee',
+                        email: 'adam@fabriscan.com',
+                        phone: '+254705678901',
+                        password: 'demo123',
+                        registeredAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString()
+                    }
+                ];
+                
+                // Add more random users
+                for (let i = 0; i < 45; i++) {
+                    const trNumber = 27000 + Math.floor(Math.random() * 1000);
+                    users.push({
+                        id: i + 6,
+                        name: `TR${trNumber}`,
+                        email: `tr${trNumber}@fabriscan.com`,
+                        phone: `+254${700000000 + Math.floor(Math.random() * 99999999)}`,
+                        password: 'demo123',
+                        registeredAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
+                    });
+                }
+                localStorage.setItem('laundryUsers', JSON.stringify(users));
+            }
+
+            if (clothes.length === 0) {
+                clothes = [];
+                const clothTypes = ['Kurta', 'Saya', 'Shirt', 'T-shirt', 'Pants', 'Jacket', 'Socks', 'Undergarment'];
+                const prices = { 'Kurta': [80, 200], 'Saya': [100, 250], 'Shirt': [60, 120], 'T-shirt': [40, 80], 'Pants': [80, 150], 'Jacket': [150, 300], 'Socks': [20, 40], 'Undergarment': [30, 60] };
+                
+                let clothId = 1;
+                
+                // Add specific clothes for test users
+                for (let userId = 1; userId <= 5; userId++) {
+                    const owner = users.find(u => u.id === userId);
+                    const itemsPerUser = 8 + Math.floor(Math.random() * 7);
+                    
+                    for (let j = 0; j < itemsPerUser; j++) {
+                        const type = clothTypes[Math.floor(Math.random() * clothTypes.length)];
+                        const priceRange = prices[type];
+                        const price = Math.floor(Math.random() * (priceRange[1] - priceRange[0] + 1)) + priceRange[0];
+                        
+                        clothes.push({
+                            id: clothId++,
+                            ownerId: owner.id,
+                            ownerName: owner.name,
+                            type: type,
+                            price: price,
+                            rfidTag: `RFID_${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
+                            registeredAt: new Date(Date.now() - Math.random() * 20 * 24 * 60 * 60 * 1000).toISOString()
+                        });
+                    }
+                }
+                
+                // Add clothes for remaining users
+                for (let i = clothId; i < 500; i++) {
+                    const type = clothTypes[Math.floor(Math.random() * clothTypes.length)];
+                    const priceRange = prices[type];
+                    const price = Math.floor(Math.random() * (priceRange[1] - priceRange[0] + 1)) + priceRange[0];
+                    const owner = users[Math.floor(Math.random() * users.length)];
+                    
+                    clothes.push({
+                        id: i,
+                        ownerId: owner.id,
+                        ownerName: owner.name,
+                        type: type,
+                        price: price,
+                        rfidTag: `RFID_${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
+                        registeredAt: new Date(Date.now() - Math.random() * 20 * 24 * 60 * 60 * 1000).toISOString()
+                    });
+                }
+                localStorage.setItem('laundryClothes', JSON.stringify(clothes));
+            }
+
+            if (scans.length === 0) {
+                scans = [];
+                const today = new Date();
+                
+                // Generate scans for test users
+                for (let i = 0; i < 1000; i++) {
+                    const clothItem = clothes[Math.floor(Math.random() * clothes.length)];
+                    const daysAgo = Math.floor(Math.random() * 30);
+                    const hoursAgo = Math.floor(Math.random() * 24);
+                    const minutesAgo = Math.floor(Math.random() * 60);
+                    
+                    scans.push({
+                        id: i + 1,
+                        rfidTag: clothItem.rfidTag,
+                        clothType: clothItem.type,
+                        ownerName: clothItem.ownerName,
+                        ownerId: clothItem.ownerId,
+                        price: clothItem.price,
+                        timestamp: new Date(today.getTime() - (daysAgo * 86400000) - (hoursAgo * 3600000) - (minutesAgo * 60000)).toISOString()
+                    });
+                }
+                
+                // Add extra scans for test users
+                for (let userId = 1; userId <= 5; userId++) {
+                    const userClothes = clothes.filter(c => c.ownerId === userId);
+                    if (userClothes.length > 0) {
+                        for (let j = 0; j < 15; j++) {
+                            const clothItem = userClothes[Math.floor(Math.random() * userClothes.length)];
+                            const daysAgo = Math.floor(Math.random() * 15);
+                            const hoursAgo = Math.floor(Math.random() * 24);
+                            const minutesAgo = Math.floor(Math.random() * 60);
+                            
+                            scans.push({
+                                id: scans.length + 1,
+                                rfidTag: clothItem.rfidTag,
+                                clothType: clothItem.type,
+                                ownerName: clothItem.ownerName,
+                                ownerId: clothItem.ownerId,
+                                price: clothItem.price,
+                                timestamp: new Date(today.getTime() - (daysAgo * 86400000) - (hoursAgo * 3600000) - (minutesAgo * 60000)).toISOString()
+                            });
+                        }
+                    }
+                }
+                
+                localStorage.setItem('laundryScans', JSON.stringify(scans));
+            }
+        }
+
+        // Loading screen
+        function hideLoadingScreen() {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 2500);
+        }
+
+        // Theme toggle functionality
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update toggle icon
+            const icon = document.querySelector('.theme-toggle-icon');
+            icon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+            
+            playSuccessSound();
+        }
+
+        // Credits panel toggle
+        function toggleCredits() {
+            const panel = document.getElementById('creditsPanel');
+            panel.classList.toggle('active');
+            playSuccessSound();
+        }
+
+        // Initialize the application
+        function init() {
+            initializeDummyData();
+            updateOwnerDropdown();
+            updateStats();
+            hideLoadingScreen();
+            
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const icon = document.querySelector('.theme-toggle-icon');
+            icon.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+            
+            // Initialize audio context on first user interaction
+            document.addEventListener('click', function initAudio() {
+                initAudioContext();
+                document.removeEventListener('click', initAudio);
+            }, { once: true });
+        }
+
+        // Page navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(pageId).classList.add('active');
+            document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+        }
+
+        // User registration
+        function registerUser(event) {
+            event.preventDefault();
+            
+            const userData = {
+                id: Date.now(),
+                name: document.getElementById('user-name').value,
+                email: document.getElementById('user-email').value,
+                phone: document.getElementById('user-phone').value,
+                password: document.getElementById('user-password').value,
+                registeredAt: new Date().toISOString()
+            };
+            
+            if (users.find(user => user.email === userData.email)) {
+                playErrorSound();
+                showAlert('User with this email already exists!', 'error');
+                return;
+            }
+            
+            users.push(userData);
+            localStorage.setItem('laundryUsers', JSON.stringify(users));
+            updateOwnerDropdown();
+            
+            playSuccessSound();
+            showAlert('User successfully registered!', 'success');
+            event.target.reset();
+            updateStats();
+        }
+
+        // Admin pricing structure
+        const adminPricing = {
+            'Kurta': 120,
+            'Saya': 150,
+            'Shirt': 80,
+            'T-shirt': 60,
+            'Pants': 100,
+            'Jacket': 200,
+            'Socks': 30,
+            'Undergarment': 40
+        };
+
+        // Clothes registration with cloud sync
+        async function registerClothes(event) {
+            event.preventDefault();
+            
+            const ownerName = document.getElementById('clothes-owner').value;
+            const clothType = document.getElementById('cloth-type').value;
+            const rfidTag = document.getElementById('clothes-rfid').textContent;
+            
+            if (rfidTag === 'Waiting for RFID scan...' || rfidTag.includes('SCANNING') || rfidTag.includes('timeout')) {
+                playErrorSound();
+                showAlert('Please scan an RFID tag first!', 'error');
+                return;
+            }
+            
+            if (clothes.find(item => item.rfidTag === rfidTag)) {
+                playErrorSound();
+                showAlert('This RFID tag is already registered!', 'error');
+                return;
+            }
+            
+            // Admin sets the price based on clothing type
+            const adminPrice = adminPricing[clothType] || 50;
+            
+            const clothesData = {
+                id: Date.now(),
+                ownerId: Date.now(), // Generate unique ID
+                ownerName: ownerName,
+                type: clothType,
+                price: adminPrice, // Admin-controlled pricing
+                rfidTag: rfidTag,
+                registeredAt: new Date().toISOString()
+            };
+            
+            // Save locally first
+            clothes.push(clothesData);
+            localStorage.setItem('laundryClothes', JSON.stringify(clothes));
+            
+            // Save to cloud if enabled
+            if (isCloudSyncEnabled) {
+                await saveToGoogleSheets(clothesData, 'clothes');
+                showAlert(`Item registered & synced to cloud! Admin price: KSH ${adminPrice}`, 'success');
+            } else {
+                showAlert(`Item registered! Admin price: KSH ${adminPrice}`, 'success');
+            }
+            
+            playSuccessSound();
+            event.target.reset();
+            document.getElementById('clothes-rfid').textContent = 'Waiting for RFID scan...';
+            document.getElementById('clothes-rfid').style.color = '';
+            isRegistrationScanning = false;
+            updateStats();
+        }
+
+        // Quick login
+        function quickLogin(email, password) {
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                isAdmin = false;
+                showLoggedInState();
+                loadOwnerDashboard();
+                showPage('owner-dashboard');
+                playSuccessSound();
+                showAlert(`Welcome back, ${user.name}!`, 'success');
+            } else {
+                playErrorSound();
+                showAlert('Test account not found!', 'error');
+            }
+        }
+
+        // Quick admin login
+        function quickAdminLogin() {
+            currentUser = { name: 'Admin', email: 'admin@fabriscan.com' };
+            isAdmin = true;
+            showLoggedInState();
+            loadAdminDashboard();
+            showPage('admin-dashboard');
+            playSuccessSound();
+            showAlert('Admin access granted!', 'success');
+        }
+
+        // User login
+        function userLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                isAdmin = false;
+                showLoggedInState();
+                loadOwnerDashboard();
+                showPage('owner-dashboard');
+                playSuccessSound();
+                showAlert('Login successful!', 'success');
+            } else {
+                playErrorSound();
+                showAlert('Invalid credentials!', 'error');
+            }
+        }
+
+        // Admin login
+        function adminLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+            
+            if (username.trim() && password.trim()) {
+                currentUser = { name: `Admin (${username})`, email: 'admin@fabriscan.com' };
+                isAdmin = true;
+                showLoggedInState();
+                loadAdminDashboard();
+                showPage('admin-dashboard');
+                playSuccessSound();
+                showAlert('Admin access granted!', 'success');
+            } else {
+                playErrorSound();
+                showAlert('Please enter credentials!', 'error');
+            }
+        }
+
+        // Logout
+        function logout() {
+            currentUser = null;
+            isAdmin = false;
+            document.getElementById('logout-btn').style.display = 'none';
+            showPage('home');
+            playStopSound();
+            showAlert('Logged out successfully!', 'success');
+        }
+
+        // Show logged in state
+        function showLoggedInState() {
+            document.getElementById('logout-btn').style.display = 'block';
+        }
+
+        // Enhanced owner dashboard
+        function loadOwnerDashboard() {
+            // User profile
+            const userProfile = document.getElementById('user-profile');
+            const userClothes = clothes.filter(item => item.ownerId == currentUser.id);
+            const userScans = scans.filter(scan => scan.ownerId == currentUser.id);
+            const totalSpent = userScans.reduce((sum, scan) => sum + scan.price, 0);
+            
+            userProfile.innerHTML = `
+                <div class="user-avatar">${currentUser.name.charAt(0)}</div>
+                <div class="user-name">${currentUser.name}</div>
+                <div class="user-email">${currentUser.email}</div>
+                <div class="user-stats">
+                    <div class="user-stat">
+                        <div class="user-stat-number">${userClothes.length}</div>
+                        <div class="user-stat-label">Items</div>
+                    </div>
+                    <div class="user-stat">
+                        <div class="user-stat-number">${userScans.length}</div>
+                        <div class="user-stat-label">Scans</div>
+                    </div>
+                    <div class="user-stat">
+                        <div class="user-stat-number">KSH ${totalSpent}</div>
+                        <div class="user-stat-label">Total</div>
+                    </div>
+                </div>
+            `;
+            
+            // User clothes
+            const ownerClothesDiv = document.getElementById('owner-clothes');
+            document.getElementById('user-items-count').textContent = userClothes.length;
+            
+            if (userClothes.length === 0) {
+                ownerClothesDiv.innerHTML = '<p style="text-align: center; color: var(--gray-light); padding: 40px;">No items registered yet.</p>';
+            } else {
+                ownerClothesDiv.innerHTML = userClothes.map(item => `
+                    <div class="item-card">
+                        <div class="item-info">
+                            <div class="item-title">${item.type}</div>
+                            <div class="item-details">
+                                🏷️ RFID: ${item.rfidTag}<br>
+                                📅 Registered: ${new Date(item.registeredAt).toLocaleDateString()}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div class="item-price">KSH ${item.price}</div>
+                            <button class="btn btn-danger" onclick="removeClothingItem(${item.id})" style="padding: 8px 16px; font-size: 12px;">🗑️ Remove</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Enhanced receipts
+            const ownerReceiptsDiv = document.getElementById('owner-receipts');
+            document.getElementById('user-receipts-count').textContent = userScans.length;
+            
+            if (userScans.length === 0) {
+                ownerReceiptsDiv.innerHTML = '<p style="text-align: center; color: var(--gray-light); padding: 40px;">No laundry history yet.</p>';
+            } else {
+                // Group scans by date for better receipt display
+                const groupedScans = {};
+                userScans.forEach(scan => {
+                    const date = new Date(scan.timestamp).toDateString();
+                    if (!groupedScans[date]) {
+                        groupedScans[date] = [];
+                    }
+                    groupedScans[date].push(scan);
+                });
+                
+                ownerReceiptsDiv.innerHTML = Object.keys(groupedScans)
+                    .sort((a, b) => new Date(b) - new Date(a))
+                    .slice(0, 10) // Show last 10 receipt groups
+                    .map(date => {
+                        const dayScans = groupedScans[date];
+                        const dayTotal = dayScans.reduce((sum, scan) => sum + scan.price, 0);
+                        
+                        return `
+                            <div class="receipt-card">
+                                <div class="receipt-header">
+                                    <div class="receipt-id">Receipt #${dayScans[0].id}</div>
+                                    <div class="receipt-date">${new Date(date).toLocaleDateString()}</div>
+                                </div>
+                                ${dayScans.map(scan => `
+                                    <div class="receipt-item">
+                                        <div class="receipt-item-name">${scan.clothType}</div>
+                                        <div class="receipt-item-price">KSH ${scan.price}</div>
+                                    </div>
+                                `).join('')}
+                                <div class="receipt-item">
+                                    <div class="receipt-item-name"><strong>Total</strong></div>
+                                    <div class="receipt-item-price"><strong>KSH ${dayTotal}</strong></div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+            }
+        }
+
+        // Load admin dashboard
+        function loadAdminDashboard() {
+            updateStats();
+            updateLiveActivityFeed();
+            updateVIPCustomers();
+            updateRecentRegisteredItems();
+            setTimeout(createCharts, 100);
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalRevenue = scans.reduce((sum, scan) => sum + scan.price, 0);
+            const todayScans = scans.filter(scan => 
+                new Date(scan.timestamp).toDateString() === new Date().toDateString()
+            );
+            
+            document.getElementById('total-clothes').textContent = clothes.length.toLocaleString();
+            document.getElementById('total-revenue').textContent = 'KSH ' + totalRevenue.toLocaleString();
+            document.getElementById('daily-scans').textContent = todayScans.length;
+            document.getElementById('total-users').textContent = users.length;
+            
+            // Calculate advanced metrics
+            const avgOrderValue = scans.length > 0 ? Math.round(totalRevenue / scans.length) : 0;
+            document.getElementById('avg-order-value').textContent = 'KSH ' + avgOrderValue;
+            
+            // Monthly growth calculation
+            const thisMonth = new Date().getMonth();
+            const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+            const thisMonthRevenue = scans.filter(scan => new Date(scan.timestamp).getMonth() === thisMonth)
+                .reduce((sum, scan) => sum + scan.price, 0);
+            const lastMonthRevenue = scans.filter(scan => new Date(scan.timestamp).getMonth() === lastMonth)
+                .reduce((sum, scan) => sum + scan.price, 0);
+            const growth = lastMonthRevenue > 0 ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100) : 0;
+            document.getElementById('monthly-growth').textContent = growth + '%';
+            
+            // Customer retention (users with multiple transactions)
+            const repeatCustomers = users.filter(user => 
+                scans.filter(scan => scan.ownerId === user.id).length > 1
+            ).length;
+            const retention = users.length > 0 ? Math.round((repeatCustomers / users.length) * 100) : 0;
+            document.getElementById('customer-retention').textContent = retention + '%';
+        }
+
+        // Update live activity feed
+        function updateLiveActivityFeed() {
+            const recentActivity = scans.slice(-20).reverse();
+            const feedDiv = document.getElementById('live-activity-feed');
+            document.getElementById('live-activity-count').textContent = recentActivity.length;
+            
+            feedDiv.innerHTML = recentActivity.map(scan => `
+                <div class="item-card" style="margin-bottom: 10px;">
+                    <div class="item-info">
+                        <div class="item-title">🔄 ${scan.ownerName} - ${scan.clothType}</div>
+                        <div class="item-details">
+                            📅 ${new Date(scan.timestamp).toLocaleString()}<br>
+                            🏷️ ${scan.rfidTag}
+                        </div>
+                    </div>
+                    <div class="item-price">KSH ${scan.price}</div>
+                </div>
+            `).join('');
+        }
+
+        // Update VIP customers
+        function updateVIPCustomers() {
+            const customerSpending = {};
+            scans.forEach(scan => {
+                if (!customerSpending[scan.ownerId]) {
+                    customerSpending[scan.ownerId] = {
+                        name: scan.ownerName,
+                        total: 0,
+                        transactions: 0
+                    };
+                }
+                customerSpending[scan.ownerId].total += scan.price;
+                customerSpending[scan.ownerId].transactions++;
+            });
+            
+            // Add some premium VIP customers with higher spending
+            const premiumVIPs = [
+                { name: 'Taher bhai Aliakbar bhai Khamusi', total: 15000, transactions: 45 },
+                { name: 'Husain bhai Shaikh Yusuf bhai Manmadwala', total: 12500, transactions: 38 },
+                { name: 'Burhanuddin bhai Mulla Zulfiqar bhai Mohammadali', total: 11200, transactions: 35 },
+                { name: 'Mustansir bhai Mulla Mufaddal bhai Jariwala', total: 10800, transactions: 32 },
+                { name: 'Abdullah bhai Mulla Ali bhai Al murri', total: 9500, transactions: 28 }
+            ];
+            
+            premiumVIPs.forEach((vip, index) => {
+                customerSpending[`premium_${index}`] = vip;
+            });
+            
+            const topCustomers = Object.values(customerSpending)
+                .sort((a, b) => b.total - a.total)
+                .slice(0, 15);
+            
+            const tableDiv = document.getElementById('vip-customers-table');
+            document.getElementById('vip-customers-count').textContent = topCustomers.length;
+            
+            tableDiv.innerHTML = topCustomers.map((customer, index) => {
+                const vipIcon = index < 3 ? '👑' : index < 6 ? '🥇' : index < 10 ? '🥈' : '🥉';
+                const vipClass = index < 3 ? 'vip-platinum' : index < 6 ? 'vip-gold' : index < 10 ? 'vip-silver' : 'vip-bronze';
+                
+                return `
+                    <div class="item-card ${vipClass}" style="margin-bottom: 10px;">
+                        <div class="item-info">
+                            <div class="item-title">${index + 1}. ${vipIcon} ${customer.name}</div>
+                            <div class="item-details">
+                                💳 ${customer.transactions} transactions<br>
+                                📊 Avg: KSH ${Math.round(customer.total / customer.transactions)}
+                            </div>
+                        </div>
+                        <div class="item-price">KSH ${customer.total.toLocaleString()}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Create charts
+        function createCharts() {
+            if (typeof Chart === 'undefined') {
+                setTimeout(createCharts, 500);
+                return;
+            }
+
+            // Destroy existing charts
+            try {
+                if (window.clothesChart) window.clothesChart.destroy();
+                if (window.revenueChart) window.revenueChart.destroy();
+                if (window.transactionChart) window.transactionChart.destroy();
+                if (window.categoryRevenueChart) window.categoryRevenueChart.destroy();
+                if (window.customerGrowthChart) window.customerGrowthChart.destroy();
+                if (window.hourlyUsageChart) window.hourlyUsageChart.destroy();
+                if (window.monthlyComparisonChart) window.monthlyComparisonChart.destroy();
+                if (window.topCustomersChart) window.topCustomersChart.destroy();
+            } catch (e) {}
+
+            const chartColors = {
+                primary: '#FF8C42',
+                secondary: '#3B82F6',
+                accent: '#1E40AF',
+                success: '#059669',
+                warning: '#D97706',
+                orange1: '#F97316',
+                orange2: '#FB923C',
+                blue1: '#60A5FA',
+                blue2: '#2563EB'
+            };
+
+            // 1. Clothes distribution
+            const clothTypes = {};
+            clothes.forEach(item => {
+                clothTypes[item.type] = (clothTypes[item.type] || 0) + 1;
+            });
+            
+            try {
+                const clothesCtx = document.getElementById('clothesChart').getContext('2d');
+                window.clothesChart = new Chart(clothesCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(clothTypes),
+                        datasets: [{
+                            data: Object.values(clothTypes),
+                            backgroundColor: [
+                                chartColors.primary, chartColors.secondary, chartColors.accent,
+                                chartColors.orange1, chartColors.blue1, chartColors.orange2,
+                                chartColors.blue2, chartColors.warning
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    font: { size: 12, family: 'Inter' },
+                                    color: '#ffffff'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error creating clothes chart:', e);
+            }
+            
+            // 2. Revenue trends
+            const dailyRevenue = {};
+            const last30Days = [];
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toDateString();
+                last30Days.push(dateStr);
+                dailyRevenue[dateStr] = 0;
+            }
+            
+            scans.forEach(scan => {
+                const date = new Date(scan.timestamp).toDateString();
+                if (dailyRevenue.hasOwnProperty(date)) {
+                    dailyRevenue[date] += scan.price;
+                }
+            });
+            
+            try {
+                const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+                window.revenueChart = new Chart(revenueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: last30Days.map(date => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+                        datasets: [{
+                            label: 'Revenue (KSH)',
+                            data: last30Days.map(date => dailyRevenue[date]),
+                            backgroundColor: 'rgba(255, 140, 66, 0.1)',
+                            borderColor: chartColors.primary,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: chartColors.secondary,
+                            pointBorderColor: chartColors.primary,
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff',
+                                    font: { family: 'Inter' }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                            },
+                            x: { 
+                                grid: { display: false },
+                                ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error creating revenue chart:', e);
+            }
+
+            // 3. Daily Transaction Volume
+            const dailyTransactions = {};
+            last30Days.forEach(date => dailyTransactions[date] = 0);
+            
+            scans.forEach(scan => {
+                const date = new Date(scan.timestamp).toDateString();
+                if (dailyTransactions.hasOwnProperty(date)) {
+                    dailyTransactions[date]++;
+                }
+            });
+
+            try {
+                const transactionCtx = document.getElementById('transactionChart').getContext('2d');
+                window.transactionChart = new Chart(transactionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: last30Days.map(date => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+                        datasets: [{
+                            label: 'Transactions',
+                            data: last30Days.map(date => dailyTransactions[date]),
+                            backgroundColor: chartColors.secondary,
+                            borderColor: chartColors.accent,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff',
+                                    font: { family: 'Inter' }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                            },
+                            x: { 
+                                grid: { display: false },
+                                ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error creating transaction chart:', e);
+            }
+
+            // 4. Revenue by Category
+            const categoryRevenue = {};
+            scans.forEach(scan => {
+                categoryRevenue[scan.clothType] = (categoryRevenue[scan.clothType] || 0) + scan.price;
+            });
+
+            try {
+                const categoryRevenueCtx = document.getElementById('categoryRevenueChart').getContext('2d');
+                window.categoryRevenueChart = new Chart(categoryRevenueCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(categoryRevenue),
+                        datasets: [{
+                            label: 'Revenue (KSH)',
+                            data: Object.values(categoryRevenue),
+                            backgroundColor: [
+                                chartColors.primary, chartColors.secondary, chartColors.accent,
+                                chartColors.orange1, chartColors.blue1, chartColors.orange2,
+                                chartColors.blue2, chartColors.warning
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                            },
+                            x: { 
+                                grid: { display: false },
+                                ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error creating category revenue chart:', e);
+            }
+
+            // 5. Customer Growth
+            const monthlyUsers = {};
+            for (let i = 11; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(date.getMonth() - i);
+                const monthKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+                monthlyUsers[monthKey] = 0;
+            }
+
+            users.forEach(user => {
+                const userDate = new Date(user.registeredAt);
+                const monthKey = userDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+                if (monthlyUsers.hasOwnProperty(monthKey)) {
+                    monthlyUsers[monthKey]++;
+                }
+            });
+
+            try {
+                const customerGrowthCtx = document.getElementById('customerGrowthChart').getContext('2d');
+                window.customerGrowthChart = new Chart(customerGrowthCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Object.keys(monthlyUsers),
+                        datasets: [{
+                            label: 'New Customers',
+                            data: Object.values(monthlyUsers),
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderColor: chartColors.secondary,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: chartColors.primary,
+                            pointBorderColor: chartColors.secondary,
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff',
+                                    font: { family: 'Inter' }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                            },
+                            x: { 
+                                grid: { display: false },
+                                ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error creating customer growth chart:', e);
+            }
+
+            // 6. Hourly Usage Pattern
+            const hourlyUsage = Array(24).fill(0);
+            scans.forEach(scan => {
+                const hour = new Date(scan.timestamp).getHours();
+                hourlyUsage[hour]++;
+            });
+
+            try {
+                const hourlyUsageCtx = document.getElementById('hourlyUsageChart').getContext('2d');
+                window.hourlyUsageChart = new Chart(hourlyUsageCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                        datasets: [{
+                            label: 'Usage Count',
+                            data: hourlyUsage,
+                            backgroundColor: 'rgba(255, 140, 66, 0.2)',
+                            borderColor: chartColors.primary,
+                            borderWidth: 2,
+                            pointBackgroundColor: chartColors.primary,
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: chartColors.primary
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff',
+                                    font: { family: 'Inter' }
+                                }
+                            }
+                        },
+                        scales: {
+                            r: {
+                                angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                pointLabels: { color: '#94a3b8', font: { family: 'Inter' } },
+                                ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error creating hourly usage chart:', e);
+            }
+
+            // 7. Monthly Comparison
+            const currentMonth = new Date().getMonth();
+            const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+            
+            const currentMonthData = {
+                revenue: scans.filter(s => new Date(s.timestamp).getMonth() === currentMonth).reduce((sum, s) => sum + s.price, 0),
+                transactions: scans.filter(s => new Date(s.timestamp).getMonth() === currentMonth).length,
+                customers: users.filter(u => new Date(u.registeredAt).getMonth() === currentMonth).length
+            };
+            
+            const lastMonthData = {
+                revenue: scans.filter(s => new Date(s.timestamp).getMonth() === lastMonth).reduce((sum, s) => sum + s.price, 0),
+                transactions: scans.filter(s => new Date(s.timestamp).getMonth() === lastMonth).length,
+                customers: users.filter(u => new Date(u.registeredAt).getMonth() === lastMonth).length
+            };
+
+            try {
+                const monthlyComparisonCtx = document.getElementById('monthlyComparisonChart').getContext('2d');
+                window.monthlyComparisonChart = new Chart(monthlyComparisonCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Revenue (KSH)', 'Transactions', 'New Customers'],
+                        datasets: [{
+                            label: 'This Month',
+                            data: [currentMonthData.revenue, currentMonthData.transactions, currentMonthData.customers],
+                            backgroundColor: chartColors.primary,
+                            borderColor: chartColors.orange1,
+                            borderWidth: 1
+                        }, {
+                            label: 'Last Month',
+                            data: [lastMonthData.revenue, lastMonthData.transactions, lastMonthData.customers],
+                            backgroundColor: chartColors.secondary,
+                            borderColor: chartColors.accent,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff',
+                                    font: { family: 'Inter' }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                            },
+                            x: { 
+                                grid: { display: false },
+                                ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error creating monthly comparison chart:', e);
+            }
+
+            // 8. Top Customers Chart
+            const customerSpending = {};
+            scans.forEach(scan => {
+                customerSpending[scan.ownerName] = (customerSpending[scan.ownerName] || 0) + scan.price;
+            });
+            
+            const topCustomers = Object.entries(customerSpending)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10);
+
+            try {
+                const topCustomersCtx = document.getElementById('topCustomersChart').getContext('2d');
+                window.topCustomersChart = new Chart(topCustomersCtx, {
+                    type: 'horizontalBar',
+                    data: {
+                        labels: topCustomers.map(([name]) => name.length > 15 ? name.substring(0, 15) + '...' : name),
+                        datasets: [{
+                            label: 'Total Spent (KSH)',
+                            data: topCustomers.map(([, amount]) => amount),
+                            backgroundColor: chartColors.success,
+                            borderColor: chartColors.accent,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                            },
+                            x: { 
+                                beginAtZero: true,
+                                grid: { display: false },
+                                ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error creating top customers chart:', e);
+            }
+        }
+
+        // Update owner dropdown
+        function updateOwnerDropdown() {
+            const select = document.getElementById('clothes-owner');
+            select.innerHTML = '<option value="">Select Item Owner</option>';
+            users.forEach(user => {
+                select.innerHTML += `<option value="${user.id}">${user.name}</option>`;
+            });
+        }
+
+        // REAL RFID SCANNING WITH NODEMCU INTEGRATION
+        let scanInterval;
+        let websocket = null;
+        let isHardwareConnected = false;
+        
+        function startScanning() {
+            playStartSound();
+            isScanning = true;
+            
+            if (isHardwareConnected) {
+                document.getElementById('scan-status').textContent = '🔄 REAL RFID SCANNER ACTIVE - Hardware Connected';
+                document.getElementById('rfid-display').textContent = '⚡ REAL HARDWARE READY - Place RFID tag near scanner';
+            } else {
+                document.getElementById('scan-status').textContent = '🔄 DEMO MODE - Hardware not connected';
+                document.getElementById('rfid-display').textContent = '⚠️ DEMO MODE - Connect NodeMCU for real scanning';
+                
+                // Fallback to demo mode if hardware not connected
+                scanInterval = setInterval(() => {
+                    if (isScanning && Math.random() > 0.7) { // 30% chance for demo
+                        simulateDemoScan();
+                    }
+                }, 1000);
+            }
+            
+            document.querySelector('.scan-area').classList.add('scanning-active');
+        }
+
+        function simulateDemoScan() {
+            if (!isScanning || isHardwareConnected) return;
+            
+            const randomCloth = clothes[Math.floor(Math.random() * clothes.length)];
+            const distance = (Math.random() * 15 + 0.5).toFixed(1);
+            
+            document.getElementById('rfid-display').textContent = `📡 DEMO SCAN: ${randomCloth.rfidTag}`;
+            document.getElementById('scan-status').textContent = `✅ DEMO: ${randomCloth.type} | ${randomCloth.ownerName}`;
+            
+            const newScan = {
+                id: scans.length + 1,
+                rfidTag: randomCloth.rfidTag,
+                clothType: randomCloth.type,
+                ownerName: randomCloth.ownerName,
+                ownerId: randomCloth.ownerId,
+                price: randomCloth.price,
+                timestamp: new Date().toISOString(),
+                scanDistance: distance,
+                scanType: 'demo'
+            };
+            
+            scans.push(newScan);
+            localStorage.setItem('laundryScans', JSON.stringify(scans));
+            
+            playScanSound();
+            updateRecentScans();
+            updateStats();
+            updateLiveActivityFeed();
+        }
+
+        function handleRealRFIDScan(rfidData) {
+            if (!isScanning) return;
+            
+            console.log('Real RFID scan received:', rfidData);
+            
+            // Find the clothing item with this RFID tag
+            const clothItem = clothes.find(item => item.rfidTag === rfidData.trim());
+            
+            if (clothItem) {
+                document.getElementById('rfid-display').textContent = `🎯 REAL SCAN: ${rfidData}`;
+                document.getElementById('scan-status').textContent = `✅ HARDWARE: ${clothItem.type} | ${clothItem.ownerName}`;
+                
+                const newScan = {
+                    id: scans.length + 1,
+                    rfidTag: clothItem.rfidTag,
+                    clothType: clothItem.type,
+                    ownerName: clothItem.ownerName,
+                    ownerId: clothItem.ownerId,
+                    price: clothItem.price,
+                    timestamp: new Date().toISOString(),
+                    scanDistance: 'Hardware',
+                    scanType: 'real'
+                };
+                
+                scans.push(newScan);
+                localStorage.setItem('laundryScans', JSON.stringify(scans));
+                
+                playScanSound();
+                updateRecentScans();
+                updateStats();
+                updateLiveActivityFeed();
+                
+                showAlert(`Scanned: ${clothItem.type} - KSH ${clothItem.price}`, 'success');
+            } else {
+                // Unknown RFID tag
+                document.getElementById('rfid-display').textContent = `❓ UNKNOWN TAG: ${rfidData}`;
+                document.getElementById('scan-status').textContent = `⚠️ Tag not registered in system`;
+                playErrorSound();
+                showAlert('RFID tag not found in system!', 'error');
+            }
+        }
+
+        function handleRegistrationRFIDScan(rfidData) {
+            if (!isRegistrationScanning) return;
+            
+            console.log('Registration RFID scan received:', rfidData);
+            
+            // Check if this RFID tag is already registered
+            const existingItem = clothes.find(item => item.rfidTag === rfidData.trim());
+            
+            if (existingItem) {
+                document.getElementById('clothes-rfid').textContent = `❌ ALREADY REGISTERED: ${rfidData}`;
+                document.getElementById('clothes-rfid').style.color = 'var(--error)';
+                playErrorSound();
+                showAlert('This RFID tag is already registered!', 'error');
+            } else {
+                document.getElementById('clothes-rfid').textContent = rfidData.trim();
+                document.getElementById('clothes-rfid').style.color = 'var(--success)';
+                playScanSound();
+                showAlert('RFID tag scanned successfully!', 'success');
+            }
+            
+            isRegistrationScanning = false;
+        }
+
+        /* 
+        NODEMCU RFID INTEGRATION GUIDE:
+        
+        🔧 HARDWARE SETUP:
+        1. Upload this NodeMCU code to your ESP8266:
+        
+        #include <ESP8266WiFi.h>
+        #include <WebSocketsServer.h>
+        #include <SPI.h>
+        #include <MFRC522.h>
+        
+        #define RST_PIN D1
+        #define SS_PIN D2
+        
+        const char* ssid = "YOUR_WIFI_SSID";
+        const char* password = "YOUR_WIFI_PASSWORD";
+        
+        MFRC522 mfrc522(SS_PIN, RST_PIN);
+        WebSocketsServer webSocket = WebSocketsServer(81);
+        
+        void setup() {
+          Serial.begin(115200);
+          SPI.begin();
+          mfrc522.PCD_Init();
+          
+          WiFi.begin(ssid, password);
+          while (WiFi.status() != WL_CONNECTED) {
+            delay(1000);
+            Serial.println("Connecting to WiFi...");
+          }
+          
+          Serial.println("WiFi connected!");
+          Serial.print("IP address: ");
+          Serial.println(WiFi.localIP());
+          
+          webSocket.begin();
+          webSocket.onEvent(webSocketEvent);
+        }
+        
+        void loop() {
+          webSocket.loop();
+          
+          if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
+            String rfidTag = "";
+            for (byte i = 0; i < mfrc522.uid.size; i++) {
+              rfidTag += String(mfrc522.uid.uidByte[i] < 0x10 ? "0" : "");
+              rfidTag += String(mfrc522.uid.uidByte[i], HEX);
+            }
+            rfidTag.toUpperCase();
+            
+            String message = "RFID:" + rfidTag;
+            webSocket.broadcastTXT(message);
+            Serial.println("RFID Scanned: " + rfidTag);
+            
+            mfrc522.PICC_HaltA();
+            delay(1000);
+          }
+        }
+        
+        void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
+          switch(type) {
+            case WStype_CONNECTED:
+              Serial.println("WebSocket Connected");
+              webSocket.sendTXT(num, "READY");
+              break;
+            case WStype_TEXT:
+              String message = String((char*)payload);
+              if (message == "INIT") {
+                webSocket.sendTXT(num, "STATUS:NodeMCU Ready");
+              }
+              break;
+          }
+        }
+        
+        📡 WIRING DIAGRAM:
+        RC522 → NodeMCU
+        SDA  → D2 (GPIO4)
+        SCK  → D5 (GPIO14)
+        MOSI → D7 (GPIO13)
+        MISO → D6 (GPIO12)
+        RST  → D1 (GPIO5)
+        3.3V → 3V3
+        GND  → GND
+        
+        🌐 NETWORK SETUP:
+        1. Change WiFi credentials in NodeMCU code
+        2. Upload code to NodeMCU
+        3. Note the IP address from Serial Monitor
+        4. Website will auto-detect on common IPs
+        5. Or manually add IP to possibleIPs array
+        
+        🔄 TROUBLESHOOTING:
+        - Check Serial Monitor for IP address
+        - Ensure same WiFi network
+        - Verify wiring connections
+        - Check WebSocket port 81 is open
+        - Use "Reconnect Hardware" button
+        */
+
+        function stopScanning() {
+            playStopSound();
+            isScanning = false;
+            
+            if (scanInterval) {
+                clearInterval(scanInterval);
+                scanInterval = null;
+            }
+            
+            // Send stop command to NodeMCU if connected
+            if (isHardwareConnected && websocket && websocket.readyState === WebSocket.OPEN) {
+                websocket.send('STOP');
+                document.getElementById('scan-status').textContent = '⏹️ Hardware Scanner Deactivated';
+                document.getElementById('rfid-display').textContent = '⚡ REAL HARDWARE READY - Click Start to begin scanning';
+            } else {
+                document.getElementById('scan-status').textContent = '⏹️ Demo Scanner Deactivated';
+                document.getElementById('rfid-display').textContent = '⚠️ DEMO MODE - Connect NodeMCU for real scanning';
+            }
+            
+            document.querySelector('.scan-area').classList.remove('scanning-active');
+        }
+
+        function scanForClothes() {
+            if (isHardwareConnected && websocket && websocket.readyState === WebSocket.OPEN) {
+                // Real hardware scanning
+                document.getElementById('clothes-rfid').textContent = '🔄 SCANNING... Place RFID tag near reader';
+                document.getElementById('clothes-rfid').style.color = 'var(--warning)';
+                
+                // Set up temporary listener for RFID registration
+                isRegistrationScanning = true;
+                playStartSound();
+                showAlert('Hardware scanner active - place RFID tag near reader', 'success');
+                
+                // Timeout after 10 seconds
+                setTimeout(() => {
+                    if (isRegistrationScanning && document.getElementById('clothes-rfid').textContent.includes('SCANNING')) {
+                        document.getElementById('clothes-rfid').textContent = 'Scan timeout - try again';
+                        document.getElementById('clothes-rfid').style.color = 'var(--error)';
+                        isRegistrationScanning = false;
+                        playErrorSound();
+                    }
+                }, 10000);
+                
+            } else {
+                // Demo mode fallback
+                const rfidTag = 'DEMO_' + Math.random().toString(36).substr(2, 8).toUpperCase();
+                document.getElementById('clothes-rfid').textContent = rfidTag;
+                document.getElementById('clothes-rfid').style.color = 'var(--success)';
+                playScanSound();
+                showAlert('Demo RFID generated - connect NodeMCU for real scanning', 'success');
+            }
+        }
+
+        // Update recent scans with enhanced display
+        function updateRecentScans() {
+            const recentScansDiv = document.getElementById('recent-scans');
+            const recentScans = scans.slice(-10).reverse();
+            document.getElementById('recent-count').textContent = recentScans.length;
+            
+            if (recentScans.length === 0) {
+                recentScansDiv.innerHTML = '<p style="text-align: center; color: var(--gray-light); padding: 40px;">No recent scans</p>';
+            } else {
+                recentScansDiv.innerHTML = recentScans.map(scan => `
+                    <div class="item-card">
+                        <div class="item-info">
+                            <div class="item-title">${scan.clothType} - ${scan.ownerName}</div>
+                            <div class="item-details">
+                                📅 ${new Date(scan.timestamp).toLocaleString()}<br>
+                                🏷️ ${scan.rfidTag}${scan.scanDistance ? `<br>📡 Range: ${scan.scanDistance}m` : ''}
+                            </div>
+                        </div>
+                        <div class="item-price">KSH ${scan.price}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Show alerts
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 4000);
+        }
+
+        // Live System Health Monitoring
+        let systemHealthInterval;
+        let websocketConnection = null;
+        
+        function initializeSystemHealth() {
+            // Start system health monitoring
+            systemHealthInterval = setInterval(updateSystemHealth, 2000);
+            updateSystemHealth();
+            
+            // Try to establish WebSocket connection for real hardware
+            tryWebSocketConnection();
+        }
+        
+        function updateSystemHealth() {
+            // Check RFID Scanner Status (simulate hardware detection)
+            checkRFIDStatus();
+            
+            // Check Network Connection
+            checkNetworkStatus();
+            
+            // Check Performance
+            checkPerformanceStatus();
+            
+            // Update overall system status
+            updateOverallSystemStatus();
+        }
+        
+        function checkRFIDStatus() {
+            const rfidIcon = document.getElementById('rfid-status-icon');
+            const rfidDetails = document.getElementById('rfid-details');
+            const rfidCard = document.getElementById('rfid-status');
+            
+            // Check real hardware connection status
+            const isConnected = isHardwareConnected && websocket && websocket.readyState === WebSocket.OPEN;
+            
+            if (isConnected) {
+                rfidIcon.textContent = '✅';
+                rfidIcon.style.color = 'var(--success)';
+                rfidDetails.textContent = 'NodeMCU Connected | RC522 Active';
+                rfidCard.style.borderColor = 'var(--success)';
+                rfidCard.style.background = 'rgba(16, 185, 129, 0.1)';
+            } else if (websocket && websocket.readyState === WebSocket.CONNECTING) {
+                rfidIcon.textContent = '🔄';
+                rfidIcon.style.color = 'var(--warning)';
+                rfidDetails.textContent = 'Connecting to NodeMCU...';
+                rfidCard.style.borderColor = 'var(--warning)';
+                rfidCard.style.background = 'rgba(255, 193, 7, 0.1)';
+            } else {
+                rfidIcon.textContent = '⚠️';
+                rfidIcon.style.color = 'var(--warning)';
+                rfidDetails.textContent = 'Demo Mode | No Hardware Detected';
+                rfidCard.style.borderColor = 'var(--warning)';
+                rfidCard.style.background = 'rgba(255, 193, 7, 0.1)';
+            }
+        }
+        
+        function checkNetworkStatus() {
+            const networkIcon = document.getElementById('network-status-icon');
+            const networkDetails = document.getElementById('network-details');
+            const networkCard = document.getElementById('network-status');
+            
+            if (navigator.onLine) {
+                networkIcon.textContent = '✅';
+                networkIcon.style.color = 'var(--success)';
+                networkDetails.textContent = `Online | ${Math.round(Math.random() * 50 + 50)}ms ping`;
+                networkCard.style.borderColor = 'var(--success)';
+            } else {
+                networkIcon.textContent = '❌';
+                networkIcon.style.color = 'var(--error)';
+                networkDetails.textContent = 'Offline | Check connection';
+                networkCard.style.borderColor = 'var(--error)';
+            }
+        }
+        
+        function checkPerformanceStatus() {
+            const perfIcon = document.getElementById('performance-status-icon');
+            const perfDetails = document.getElementById('performance-details');
+            const perfCard = document.getElementById('performance-status');
+            
+            // Simulate performance metrics
+            const cpuUsage = Math.round(Math.random() * 30 + 10); // 10-40%
+            const memoryUsage = Math.round(Math.random() * 40 + 30); // 30-70%
+            
+            if (cpuUsage < 50 && memoryUsage < 80) {
+                perfIcon.textContent = '📊';
+                perfIcon.style.color = 'var(--success)';
+                perfDetails.textContent = `CPU: ${cpuUsage}% | RAM: ${memoryUsage}%`;
+                perfCard.style.borderColor = 'var(--success)';
+            } else {
+                perfIcon.textContent = '⚠️';
+                perfIcon.style.color = 'var(--warning)';
+                perfDetails.textContent = `CPU: ${cpuUsage}% | RAM: ${memoryUsage}%`;
+                perfCard.style.borderColor = 'var(--warning)';
+            }
+        }
+        
+        function tryWebSocketConnection() {
+            // Try multiple common NodeMCU IP addresses
+            const possibleIPs = [
+                'ws://192.168.1.100:81',  // Common home network
+                'ws://192.168.0.100:81',  // Alternative home network
+                'ws://10.0.0.100:81',     // Some routers use this
+                'ws://192.168.4.1:81'     // NodeMCU AP mode
+            ];
+            
+            let currentIPIndex = 0;
+            
+            function attemptConnection() {
+                if (currentIPIndex >= possibleIPs.length) {
+                    updateWebSocketStatus(false, 'No hardware found - Demo mode');
+                    isHardwareConnected = false;
+                    return;
+                }
+                
+                const currentIP = possibleIPs[currentIPIndex];
+                console.log(`Trying to connect to: ${currentIP}`);
+                
+                try {
+                    websocket = new WebSocket(currentIP);
+                    
+                    websocket.onopen = function() {
+                        console.log('NodeMCU Connected at:', currentIP);
+                        updateWebSocketStatus(true, `Connected: ${currentIP}`);
+                        isHardwareConnected = true;
+                        
+                        // Send initialization command to NodeMCU
+                        websocket.send('INIT');
+                        
+                        showAlert('RFID Hardware Connected!', 'success');
+                    };
+                    
+                    websocket.onclose = function() {
+                        console.log('NodeMCU Disconnected');
+                        updateWebSocketStatus(false, 'Connection lost');
+                        isHardwareConnected = false;
+                        
+                        // Try to reconnect after 5 seconds
+                        setTimeout(tryWebSocketConnection, 5000);
+                    };
+                    
+                    websocket.onerror = function() {
+                        console.log(`Failed to connect to ${currentIP}`);
+                        currentIPIndex++;
+                        setTimeout(attemptConnection, 1000); // Try next IP after 1 second
+                    };
+                    
+                    websocket.onmessage = function(event) {
+                        console.log('Received from NodeMCU:', event.data);
+                        
+                        // Handle different message types from NodeMCU
+                        const message = event.data.trim();
+                        
+                        if (message.startsWith('RFID:')) {
+                            // Real RFID scan data
+                            const rfidTag = message.substring(5);
+                            
+                            if (isRegistrationScanning) {
+                                // Handle RFID scan for item registration
+                                handleRegistrationRFIDScan(rfidTag);
+                            } else if (isScanning) {
+                                // Handle RFID scan for normal scanning
+                                handleRealRFIDScan(rfidTag);
+                            }
+                        } else if (message === 'READY') {
+                            // NodeMCU is ready
+                            console.log('NodeMCU is ready for scanning');
+                            updateWebSocketStatus(true, 'Hardware ready');
+                        } else if (message.startsWith('ERROR:')) {
+                            // Error from NodeMCU
+                            console.error('NodeMCU Error:', message);
+                            showAlert('Hardware Error: ' + message.substring(6), 'error');
+                        } else if (message.startsWith('STATUS:')) {
+                            // Status update from NodeMCU
+                            const status = message.substring(7);
+                            updateWebSocketStatus(true, status);
+                        }
+                    };
+                    
+                } catch (error) {
+                    console.error('WebSocket error:', error);
+                    currentIPIndex++;
+                    setTimeout(attemptConnection, 1000);
+                }
+            }
+            
+            attemptConnection();
+        }
+        
+        function updateWebSocketStatus(connected, message) {
+            const wsIcon = document.getElementById('websocket-status-icon');
+            const wsDetails = document.getElementById('websocket-details');
+            const wsCard = document.getElementById('websocket-status');
+            
+            if (connected) {
+                wsIcon.textContent = '✅';
+                wsIcon.style.color = 'var(--success)';
+                wsDetails.textContent = message;
+                wsCard.style.borderColor = 'var(--success)';
+            } else {
+                wsIcon.textContent = '⚠️';
+                wsIcon.style.color = 'var(--warning)';
+                wsDetails.textContent = message;
+                wsCard.style.borderColor = 'var(--warning)';
+            }
+        }
+        
+        function handleRealRFIDScan(rfidTag) {
+            // Handle real RFID scan from hardware
+            const clothItem = clothes.find(item => item.rfidTag === rfidTag);
+            
+            if (clothItem) {
+                document.getElementById('rfid-display').textContent = `🎯 REAL SCAN: ${rfidTag}`;
+                document.getElementById('scan-status').textContent = `✅ ${clothItem.type} | ${clothItem.ownerName} | Hardware Detected`;
+                
+                const newScan = {
+                    id: scans.length + 1,
+                    rfidTag: clothItem.rfidTag,
+                    clothType: clothItem.type,
+                    ownerName: clothItem.ownerName,
+                    ownerId: clothItem.ownerId,
+                    price: clothItem.price,
+                    timestamp: new Date().toISOString(),
+                    scanDistance: 'Hardware'
+                };
+                
+                scans.push(newScan);
+                localStorage.setItem('laundryScans', JSON.stringify(scans));
+                
+                playScanSound();
+                updateRecentScans();
+                updateStats();
+                updateLiveActivityFeed();
+            }
+        }
+        
+        function updateOverallSystemStatus() {
+            const statusText = document.getElementById('system-status-text');
+            const statusIndicator = document.getElementById('system-status-indicator');
+            
+            const rfidOk = document.getElementById('rfid-status-icon').textContent === '✅';
+            const networkOk = document.getElementById('network-status-icon').textContent === '✅';
+            const perfOk = document.getElementById('performance-status-icon').textContent === '📊';
+            
+            const systemsOk = [rfidOk, networkOk, perfOk].filter(Boolean).length;
+            
+            if (systemsOk >= 2) {
+                statusText.textContent = 'ALL SYSTEMS OPERATIONAL';
+                statusIndicator.style.color = 'var(--success)';
+            } else if (systemsOk >= 1) {
+                statusText.textContent = 'PARTIAL SYSTEMS ONLINE';
+                statusIndicator.style.color = 'var(--warning)';
+            } else {
+                statusText.textContent = 'SYSTEM ISSUES DETECTED';
+                statusIndicator.style.color = 'var(--error)';
+            }
+        }
+
+        // Remove clothing item function
+        function removeClothingItem(itemId) {
+            const itemIndex = clothes.findIndex(item => item.id === itemId);
+            if (itemIndex !== -1) {
+                const removedItem = clothes[itemIndex];
+                clothes.splice(itemIndex, 1);
+                localStorage.setItem('laundryClothes', JSON.stringify(clothes));
+                
+                // Also remove related scans
+                scans = scans.filter(scan => scan.rfidTag !== removedItem.rfidTag);
+                localStorage.setItem('laundryScans', JSON.stringify(scans));
+                
+                playSuccessSound();
+                showAlert(`Removed: ${removedItem.type} (${removedItem.rfidTag})`, 'success');
+                
+                // Refresh displays
+                if (currentUser && !isAdmin) {
+                    loadOwnerDashboard();
+                } else if (isAdmin) {
+                    loadAdminDashboard();
+                    updateRecentRegisteredItems();
+                }
+                updateStats();
+            }
+        }
+
+        // Clear recent items (last 10 registered)
+        function clearRecentItems() {
+            if (confirm('Clear the last 10 registered items? This will help reset the demo.')) {
+                // Sort by registration date and remove last 10
+                const sortedClothes = clothes.sort((a, b) => new Date(b.registeredAt) - new Date(a.registeredAt));
+                const itemsToRemove = sortedClothes.slice(0, 10);
+                
+                itemsToRemove.forEach(item => {
+                    const itemIndex = clothes.findIndex(c => c.id === item.id);
+                    if (itemIndex !== -1) {
+                        clothes.splice(itemIndex, 1);
+                    }
+                    // Remove related scans
+                    scans = scans.filter(scan => scan.rfidTag !== item.rfidTag);
+                });
+                
+                localStorage.setItem('laundryClothes', JSON.stringify(clothes));
+                localStorage.setItem('laundryScans', JSON.stringify(scans));
+                
+                playSuccessSound();
+                showAlert(`Cleared ${itemsToRemove.length} recent items for demo reset!`, 'success');
+                
+                updateStats();
+                updateRecentRegisteredItems();
+                updateLiveActivityFeed();
+            }
+        }
+
+        // Reset demo data completely
+        function resetDemoData() {
+            if (confirm('Reset ALL demo data? This will clear everything except test users.')) {
+                // Keep only the first 5 test users
+                const testUsers = users.slice(0, 5);
+                
+                // Clear all clothes and scans
+                clothes = [];
+                scans = [];
+                
+                localStorage.setItem('laundryUsers', JSON.stringify(testUsers));
+                localStorage.setItem('laundryClothes', JSON.stringify(clothes));
+                localStorage.setItem('laundryScans', JSON.stringify(scans));
+                
+                users = testUsers;
+                
+                playSuccessSound();
+                showAlert('Demo data reset! Ready for fresh demonstration.', 'success');
+                
+                updateStats();
+                updateRecentRegisteredItems();
+                updateLiveActivityFeed();
+                updateVIPCustomers();
+            }
+        }
+
+        // Update recent registered items display
+        function updateRecentRegisteredItems() {
+            const recentItemsDiv = document.getElementById('recent-registered-items');
+            const recentItems = clothes.slice(-15).reverse(); // Last 15 items
+            
+            if (recentItems.length === 0) {
+                recentItemsDiv.innerHTML = '<p style="text-align: center; color: var(--gray-light); padding: 40px;">No recent registrations</p>';
+            } else {
+                recentItemsDiv.innerHTML = recentItems.map(item => `
+                    <div class="item-card">
+                        <div class="item-info">
+                            <div class="item-title">${item.type} - ${item.ownerName}</div>
+                            <div class="item-details">
+                                🏷️ RFID: ${item.rfidTag}<br>
+                                📅 Registered: ${new Date(item.registeredAt).toLocaleString()}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div class="item-price">KSH ${item.price}</div>
+                            <button class="btn btn-danger" onclick="removeClothingItem(${item.id})" style="padding: 8px 16px; font-size: 12px;">🗑️ Remove</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Toggle cloud sync
+        function toggleCloudSync() {
+            isCloudSyncEnabled = !isCloudSyncEnabled;
+            const btn = document.getElementById('cloud-sync-btn');
+            
+            if (isCloudSyncEnabled) {
+                btn.textContent = '☁️ Cloud Sync ON';
+                btn.style.background = 'linear-gradient(135deg, var(--success), var(--accent))';
+                showAlert('Cloud sync enabled! Configure Google Sheets URL first.', 'success');
+            } else {
+                btn.textContent = '☁️ Enable Cloud Sync';
+                btn.style.background = 'linear-gradient(135deg, var(--gray), var(--accent))';
+                showAlert('Cloud sync disabled - using local storage only', 'success');
+            }
+            
+            localStorage.setItem('cloudSyncEnabled', isCloudSyncEnabled);
+            playSuccessSound();
+        }
+
+        // Initialize
+        init();
+        updateRecentScans();
+        initializeSystemHealth();
+        
+        // Load cloud sync preference
+        isCloudSyncEnabled = localStorage.getItem('cloudSyncEnabled') === 'true';
+        if (isCloudSyncEnabled) {
+            setTimeout(() => {
+                const btn = document.getElementById('cloud-sync-btn');
+                if (btn) {
+                    btn.textContent = '☁️ Cloud Sync ON';
+                    btn.style.background = 'linear-gradient(135deg, var(--success), var(--accent))';
+                }
+            }, 1000);
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9784c6a154415bc2',t:'MTc1NjcyOTc5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
